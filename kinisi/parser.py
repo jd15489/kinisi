@@ -98,7 +98,7 @@ class Parser:
         return self._volume
 
     @staticmethod
-    def get_disp(coords: List[np.ndarray], latt: List[np.ndarray], progress: bool = True) -> np.ndarray:
+    def get_disp(coords: List[np.ndarray], latt: List[np.ndarray]) -> np.ndarray:
         """
         Calculate displacements.
 
@@ -112,8 +112,30 @@ class Parser:
         d_coords = d_coords - np.round(d_coords)
         f_disp = np.cumsum(d_coords, axis=1)
         latt = np.array(latt)
-        disp = np.einsum('ijk,jkl->jik', f_disp, latt[1:])
+        disp = np.einsum('ijk,jkl->jik', f_disp, latt[1:]) 
         disp = np.transpose(disp, (1, 0, 2))
+        return disp
+    
+    @staticmethod
+    def get_disp_npt(coords: List[np.ndarray], latt: List[np.ndarray]) -> np.ndarray:
+        """
+        Calcualte displacements with Toroidal-View-Preserving (TOR) unwrapping scheme.
+
+        :param coords: Fractional coordinates for all atoms.
+        :param latt: Lattice descriptions.
+
+        :return: Numpy array of with shape [site, time step, axis] describing displacements.
+        """
+        #Convert coords to cartesian
+        coords = np.concatenate(coords, axis=1)
+        wrapped = np.einsum('ijk,jkl->jik', coords, latt)
+        #Unwarp
+        unwrapped = [wrapped[0]]
+        for i, w in enumerate(wrapped[1:]):
+            unwrapped.append(unwrapped[i] + (w - wrapped[i]) - np.floor(((w - wrapped[i]) / (np.diag(latt[i+1])))+1/2) * np.diag(latt[i+1]))
+        #Calculate displacements
+        diff = np.diff(unwrapped)
+        disp = np.swapaxes(diff, 0, 1)
         return disp
 
     @staticmethod
@@ -275,7 +297,7 @@ class ASEParser(Parser):
 
         self.coords_check = coords[0]
 
-        super().__init__(self.get_disp(coords, latt, progress=progress), indices[0], indices[1], time_step, step_skip,
+        super().__init__(self.get_disp_npt(coords, latt), indices[0], indices[1], time_step, step_skip,
                          min_dt, max_dt, n_steps, spacing, sampling, memory_limit, progress)
         self._volume = structure.get_volume()
 
@@ -409,7 +431,7 @@ class PymatgenParser(Parser):
 
         self.coords_check = coords[0]
 
-        super().__init__(disp=self.get_disp(coords, latt, progress=progress),
+        super().__init__(disp=self.get_disp_npt(coords, latt),
                          indices=indices[0],
                          drift_indices=indices[1],
                          time_step=time_step,
@@ -568,9 +590,10 @@ class MDAnalysisParser(Parser):
         else:
             raise TypeError('Unrecognized type for specie or specie_indices')
 
-        self.coords_check = coords[0]
+        self.coords = coords
+        self.latt = latt
 
-        super().__init__(disp=self.get_disp(coords, latt, progress=progress),
+        super().__init__(disp=self.get_disp_npt(coords, latt),
                          indices=indices[0],
                          drift_indices=indices[1],
                          time_step=time_step,
