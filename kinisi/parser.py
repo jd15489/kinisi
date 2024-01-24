@@ -115,28 +115,6 @@ class Parser:
         disp = np.einsum('ijk,jkl->jik', f_disp, latt[1:]) 
         disp = np.transpose(disp, (1, 0, 2))
         return disp
-    
-    @staticmethod
-    def get_disp_npt(coords: List[np.ndarray], latt: List[np.ndarray]) -> np.ndarray:
-        """
-        Calcualte displacements with Toroidal-View-Preserving (TOR) unwrapping scheme.
-
-        :param coords: Fractional coordinates for all atoms.
-        :param latt: Lattice descriptions.
-
-        :return: Numpy array of with shape [site, time step, axis] describing displacements.
-        """
-        #Convert coords to cartesian
-        coords = np.concatenate(coords, axis=1)
-        wrapped = np.einsum('ijk,jkl->jik', coords, latt)
-        #Unwarp
-        unwrapped = [wrapped[0]]
-        for i, w in enumerate(wrapped[1:]):
-            unwrapped.append(unwrapped[i] + (w - wrapped[i]) - np.floor(((w - wrapped[i]) / (np.diag(latt[i+1])))+1/2) * np.diag(latt[i+1]))
-        #Calculate displacements
-        diff = np.diff(unwrapped)
-        disp = np.swapaxes(diff, 0, 1)
-        return disp
 
     @staticmethod
     def correct_drift(drift_indices: np.ndarray, disp: np.ndarray) -> np.ndarray:
