@@ -96,6 +96,15 @@ class Parser:
         :return: Volume of system, in cubic angstrom.
         """
         return self._volume
+    
+    @staticmethod
+    def check_ensemble(latt: List[np.ndarray]) -> bool:
+        """
+        Check if trajectory is NVT, orthorhombic NPT or the unsupported non-orthorhombic NPT
+        """
+        
+        
+        return ensemble
 
     @staticmethod
     def get_disp(coords: List[np.ndarray], latt: List[np.ndarray]) -> np.ndarray:
