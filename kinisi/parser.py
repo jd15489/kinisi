@@ -101,15 +101,28 @@ class Parser:
     def check_ensemble(latt: List[np.ndarray]) -> bool:
         """
         Check if trajectory is NVT, orthorhombic NPT or the unsupported non-orthorhombic NPT
+
+        :param latt: Lattice description
+
+        :return: Bool, True if orthorhombic NPT, false if NVT, raises error if non-orthorhombic NPT
         """
+        if np.all(latt == latt[0]):
+            NPT = False
+        else:
+            test_zeros = np.zeros(latt.shape)
+            test_latt = latt
+            test_latt = np.subtract(test_latt, test_latt, where=np.tile(np.eye(3), (test_latt.shape[0],1,1)) != 0)
+            if np.isclose(test_latt, test_zeros).all():
+                NPT = True
+            else:
+                raise ValueError('Unsupported ensemble found.')
         
-        
-        return ensemble
+        return NPT
 
     @staticmethod
     def get_disp(coords: List[np.ndarray], latt: List[np.ndarray]) -> np.ndarray:
         """
-        Calculate displacements.
+        Calculate displacements for NVT trajectories.
 
         :param coords: Fractional coordinates for all atoms.
         :param latt: Lattice descriptions.
@@ -124,6 +137,19 @@ class Parser:
         disp = np.einsum('ijk,jkl->jik', f_disp, latt[1:]) 
         disp = np.transpose(disp, (1, 0, 2))
         return disp
+    
+    @staticmethod
+    def get_disp_npt(coords: List[np.ndarray], latt: List[np.ndarray]) -> np.ndarray:
+        """
+        Calculate displacements for NPT trajectories.
+
+        :param coords: Fractional coordinates for all atoms.
+        :param latt: Lattice descriptions.
+
+        :return: Numpy array with shape [site, timestep, axis] describing displacements.
+        """
+        coords = np.concatenate(coords, axis=1)
+
 
     @staticmethod
     def correct_drift(drift_indices: np.ndarray, disp: np.ndarray) -> np.ndarray:
