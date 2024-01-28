@@ -153,9 +153,9 @@ class Parser:
         wrapped_diff = np.diff(wrapped, axis=1)
         latt_para = np.einsum('ijj->ij', latt)
 
-        unwrapped_diff = wrapped_diff - np.floor(wrapped_diff / latt_para[1:] + 1 / 2) * latt_para[1:]
+        unwrapped_disp = wrapped_diff - np.floor(wrapped_diff / latt_para[1:] + 1 / 2) * latt_para[1:]
 
-        return unwrapped_diff
+        return unwrapped_disp
 
     @staticmethod
     def correct_drift(drift_indices: np.ndarray, disp: np.ndarray) -> np.ndarray:
