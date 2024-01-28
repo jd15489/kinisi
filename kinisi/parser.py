@@ -96,7 +96,7 @@ class Parser:
         :return: Volume of system, in cubic angstrom.
         """
         return self._volume
-    
+
     @staticmethod
     def check_ensemble(latt: List[np.ndarray]) -> bool:
         """
@@ -111,12 +111,12 @@ class Parser:
         else:
             test_zeros = np.zeros(latt.shape)
             test_latt = latt
-            test_latt = np.subtract(test_latt, test_latt, where=np.tile(np.eye(3), (test_latt.shape[0],1,1)) != 0)
+            test_latt = np.subtract(test_latt, test_latt, where=np.tile(np.eye(3), (test_latt.shape[0], 1, 1)) != 0)
             if np.isclose(test_latt, test_zeros).all():
                 NPT = True
             else:
                 raise ValueError('Unsupported ensemble found.')
-        
+
         return NPT
 
     @staticmethod
@@ -136,7 +136,7 @@ class Parser:
         latt = np.array(latt)
         disp = np.einsum('ijk,jkl->ijk', f_disp, latt[1:])
         return disp
-    
+
     @staticmethod
     def get_disp_npt(coords: List[np.ndarray], latt: List[np.ndarray]) -> np.ndarray:
         """
@@ -153,10 +153,9 @@ class Parser:
         wrapped_diff = np.diff(wrapped, axis=1)
         latt_para = np.einsum('ijj->ij', latt)
 
-        unwrapped_diff = wrapped_diff - np.floor(wrapped_diff/latt_para[1:] + 1/2) * latt_para[1:]
+        unwrapped_diff = wrapped_diff - np.floor(wrapped_diff / latt_para[1:] + 1 / 2) * latt_para[1:]
 
         return unwrapped_diff
-
 
     @staticmethod
     def correct_drift(drift_indices: np.ndarray, disp: np.ndarray) -> np.ndarray:
@@ -317,8 +316,8 @@ class ASEParser(Parser):
 
         self.coords_check = coords[0]
 
-        super().__init__(self.get_disp(coords, latt), indices[0], indices[1], time_step, step_skip,
-                         min_dt, max_dt, n_steps, spacing, sampling, memory_limit, progress)
+        super().__init__(self.get_disp(coords, latt), indices[0], indices[1], time_step, step_skip, min_dt, max_dt,
+                         n_steps, spacing, sampling, memory_limit, progress)
         self._volume = structure.get_volume()
 
     @staticmethod
