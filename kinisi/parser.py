@@ -148,12 +148,31 @@ class Parser:
         :return: Numpy array with shape [site, timestep, axis] describing displacements.
         """
         coords = np.concatenate(coords, axis=1)
-        wrapped = np.einsum('ijk,jkl->jik', coords, latt)
-        wrapped = np.swapaxes(wrapped, 0, 1)
+        wrapped = np.einsum('ijk,jkl->ijk', coords, latt)
         wrapped_diff = np.diff(wrapped, axis=1)
         latt_para = np.einsum('ijj->ij', latt)
 
         unwrapped_disp = wrapped_diff - np.floor(wrapped_diff / latt_para[1:] + 1 / 2) * latt_para[1:]
+
+        return unwrapped_disp
+
+    @staticmethod
+    def get_disp_npt_matrix(coords: List[np.ndarray], latt: List[np.ndarray]) -> np.ndarray:
+        """
+        Calculate displacements for NPT trajectories.
+
+        :param coords: Fractional coordinates for all atoms.
+        :param latt: Lattice descriptions.
+
+        :return: Numpy array with shape [site, timestep, axis] describing displacements.
+        """
+        coords = np.concatenate(coords, axis=1)
+        latt_inv = np.linalg.inv(latt)
+        wrapped = np.einsum('ijk,jkl->ijk', coords, latt)
+        wrapped_diff = np.diff(wrapped, axis=1)
+
+        unwrapped_disp = wrapped_diff - np.einsum(
+            'ijk,jkl->ijk', np.floor(np.einsum('ijk,jkl->ijk', wrapped_diff, latt_inv[1:]) + (1 / 2)), latt[1:])
 
         return unwrapped_disp
 
