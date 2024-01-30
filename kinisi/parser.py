@@ -138,7 +138,7 @@ class Parser:
         return disp
 
     @staticmethod
-    def get_disp_npt(coords: List[np.ndarray], latt: List[np.ndarray]) -> np.ndarray:
+    def get_disp_npt(coords, latt):
         """
         Calculate displacements for NPT trajectories.
 
@@ -152,12 +152,12 @@ class Parser:
         wrapped_diff = np.diff(wrapped, axis=1)
         latt_para = np.einsum('ijj->ij', latt)
 
-        unwrapped_disp = wrapped_diff - np.floor(wrapped_diff / latt_para[1:] + 1 / 2) * latt_para[1:]
+        unwrapped_disp = wrapped_diff - (np.floor(wrapped_diff / latt_para[1:] + 1 / 2) * latt_para[1:])
 
-        return unwrapped_disp
+        return np.cumsum(unwrapped_disp, axis=1)
 
     @staticmethod
-    def get_disp_npt_matrix(coords: List[np.ndarray], latt: List[np.ndarray]) -> np.ndarray:
+    def get_disp_npt_matrix(coords, latt):
         """
         Calculate displacements for NPT trajectories.
 
@@ -171,10 +171,9 @@ class Parser:
         wrapped = np.einsum('ijk,jkl->ijk', coords, latt)
         wrapped_diff = np.diff(wrapped, axis=1)
 
-        unwrapped_disp = wrapped_diff - np.einsum(
-            'ijk,jkl->ijk', np.floor(np.einsum('ijk,jkl->ijk', wrapped_diff, latt_inv[1:]) + (1 / 2)), latt[1:])
+        unwrapped_disp = wrapped_diff - (np.einsum('ijk,jkl->ijk', np.floor(np.einsum('ijk,jkl->ijk', wrapped_diff, latt_inv[1:]) + (1 / 2)), latt[1:]))
 
-        return unwrapped_disp
+        return np.cumsum(unwrapped_disp, axis=1)
 
     @staticmethod
     def correct_drift(drift_indices: np.ndarray, disp: np.ndarray) -> np.ndarray:
