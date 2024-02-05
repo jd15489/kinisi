@@ -340,6 +340,7 @@ class TestParser(unittest.TestCase):
         coords, (indices, framework_indices) = parser._get_molecules(structure, coords, [[1, 2]], [1, 1], [3])
         assert_equal([0], indices)
         assert_equal([1], framework_indices)
+        assert_equal(2, coords.shape[1])
 
     #Matrix test
     def test_get_matrix(self):
