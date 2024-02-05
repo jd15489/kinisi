@@ -321,6 +321,26 @@ class TestParser(unittest.TestCase):
         disp_array = [[0.0, 0.0, 0.0], [0.2, 0.2, 0.2], [0.4, 0.4, 0.4], [1, 1, 1]]
         assert_almost_equal(data_2.dc[0], disp_array)
 
+    def test_get_framework(self):
+        xd = mda.Universe(os.path.join(os.path.dirname(kinisi.__file__), 'tests/inputs/example_LAMMPS_drift.data'),
+                          os.path.join(os.path.dirname(kinisi.__file__), 'tests/inputs/example_LAMMPS_drift.traj'),
+                          topology_format='DATA',
+                          format='LAMMPSDUMP')
+        structure, *_ = parser.MDAnalysisParser.get_structure_coords_latt(xd)
+        indices, framework_indices = parser._get_framework(structure, [], [1, 2, 3])
+        assert_equal([], indices)
+        assert_equal([0, 1, 2], framework_indices)
+
+    def test_get_molecules(self):
+        xd = mda.Universe(os.path.join(os.path.dirname(kinisi.__file__), 'tests/inputs/example_LAMMPS_drift.data'),
+                          os.path.join(os.path.dirname(kinisi.__file__), 'tests/inputs/example_LAMMPS_drift.traj'),
+                          topology_format='DATA',
+                          format='LAMMPSDUMP')
+        structure, coords, *_ = parser.MDAnalysisParser.get_structure_coords_latt(xd)
+        coords, (indices, framework_indices) = parser._get_molecules(structure, coords, [[1, 2]], [1, 1], [3])
+        assert_equal([0], indices)
+        assert_equal([1], framework_indices)
+
     #Matrix test
     def test_get_matrix(self):
         matrix = parser._get_matrix([10, 10, 10, 90, 90, 90])

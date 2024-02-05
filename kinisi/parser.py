@@ -686,7 +686,7 @@ def _get_matrix(dimensions: np.ndarray) -> np.ndarray:
 
 def _get_molecules(structure: "ase.atoms.Atoms" or "pymatgen.core.structure.Structure"
                    or "MDAnalysis.universe.Universe", coords: List[np.ndarray], indices: List[int], masses: List[float],
-                   framework_indices) -> Tuple[np.ndarray, np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+                   framework_indices) -> Tuple[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
     """
     Determine framework and non-framework indices for an :py:mod:`ase` or :py:mod:`pymatgen` or :py:mod:`MDAnalysis` compatible file when specie_indices are provided and contain multiple molecules. Warning: This function changes the structure without changing the object.
         
@@ -702,7 +702,6 @@ def _get_molecules(structure: "ase.atoms.Atoms" or "pymatgen.core.structure.Stru
         and Tuple containing: indices for centers used in the calculation 
         of the diffusion and indices of framework atoms.
     """
-    drift_indices = []
     try:
         indices = np.array(indices) - 1
     except:
@@ -713,6 +712,7 @@ def _get_molecules(structure: "ase.atoms.Atoms" or "pymatgen.core.structure.Stru
     if isinstance(framework_indices, (list, tuple)):
         drift_indices = np.array(framework_indices) - 1
     else:
+        drift_indices = []
         for i, site in enumerate(structure):
             if i not in indices:
                 drift_indices.append(i)
@@ -763,9 +763,8 @@ def _get_framework(structure: "ase.atoms.Atoms" or "pymatgen.core.structure.Stru
         drift_indices = np.array(framework_indices) - 1
     else:
         drift_indices = []
-
-    for i, site in enumerate(structure):
-        if i not in indices:
-            drift_indices.append(i)
+        for i, site in enumerate(structure):
+            if i not in indices:
+                drift_indices.append(i)
 
     return indices, drift_indices
