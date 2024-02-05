@@ -707,6 +707,10 @@ def _get_molecules(structure: "ase.atoms.Atoms" or "pymatgen.core.structure.Stru
     except:
         raise ValueError('Molecules must be of same length')
 
+    if len(indices.shape) != 2:
+        raise ValueError(
+            f'Specie_indices with molecules must have shape: (molecules, atoms) but shape: {indices.shape} given.')
+
     n_molecules = indices.shape[0]
 
     if isinstance(framework_indices, (list, tuple)):
