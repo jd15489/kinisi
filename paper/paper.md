@@ -12,7 +12,7 @@ authors:
     affiliation: "1,2"
   - name: Alexander G. Squires
     orcid: 0000-0001-6967-3690
-    affiliation: "3"
+    affiliation: "3,5"
   - name: Josh Dunn
     orcid: 0000-0003-2659-0806
     affiliation: "1"
@@ -23,7 +23,7 @@ authors:
     orcid: 0000-0002-3056-8233
     affiliation: "4,5"
 affiliations:
- - name: School of Chemistry, University of Bristol, Cantock's Close, Bristol, BS8 1TS, United Kingdom
+ - name: Centre for Computational Chemistry, School of Chemistry, University of Bristol, Cantock's Close, Bristol, BS8 1TS, United Kingdom
    index: 1
  - name: European Spallation Source ERIC, Ole Maaløes vej 3, 2200 København N, Denmark
    index: 2
@@ -33,12 +33,13 @@ affiliations:
    index: 4
  - name: The Faraday Institution, Quad One, Harwell Science and Innovation Campus, Didcot, OX11 0RA, United Kingdom
    index: 5
-date: 16 August 2023
+date: 12 February 2024
 bibliography: paper.bib
 ---
 
 # Summary
-`kinisi` is a Python package for estimating transport coefficients&mdash;e.g., self-diffusion coefficients, $D^*$&mdash;and their corresponding uncertainties from molecular dynamics simulation data: it includes an implementation of the approximate Bayesian regression scheme described in @mccluskey_arxiv_2023, wherein the mean-squared displacement (MSD) of mobile atoms is modelled as a multivariate normal distribution that is parametrised from the input simulation data.
+`kinisi` is a Python package for estimating transport coefficients&mdash;e.g., self-diffusion coefficients, $D^*$&mdash;and their corresponding uncertainties from molecular dynamics simulation data.
+It includes an implementation of the approximate Bayesian regression scheme described in @mccluskey_arxiv_2023, wherein the mean-squared displacement (MSD) of mobile atoms is modelled as a multivariate normal distribution that is parametrised from the input simulation data.
 `kinisi` uses Markov-chain Monte Carlo [@Goodman2010;@foreman_emcee_2019] to sample this model multivariate normal distribution to give a posterior distribution of linear model ensemble MSDs that are compatible with the observed simulation data.
 For each linear ensemble MSD, $\mathbf{x}(t)$, a corresponding estimate of the diffusion coefficient, $\widehat{D}^*$ is given via the Einstein relation,
 $$\widehat{D}^* = \frac{1}{6}\frac{\mathrm{d}\,\mathbf{x}(t)}{\mathrm{d}\,t},$$
@@ -53,7 +54,7 @@ Because molecular dynamics simulations are limited in size and timescale, ensemb
 The statistical properties of any calculated ensemble parameters depend on the details of the input molecular dynamics simulation&mdash;e.g., the choice of interaction potential, system size, and simulation timescale&mdash;and the choice of estimator for the target parameter to be calculated.
 An optimal estimation method should minimise the statistical uncertainty in the derived parameter of interest&mdash;the method should be statistically efficient&mdash;and should provide an accurate estimate of this uncertainty, so that calculated values can be used in downstream statistical analyses.
 
-One widely-used approach to estimating the self-diffusion coefficient, $D^*$, from molecular dynamics simulation is to fit a linear model to the observed mean-square displacement, $\mathbf{x}t$ [@allen2017], where the slope of this &ldquo;best fit&rdquo; linear relationship gives a point-estimate for $D^*$ via the corresponding Einstein relation.
+One widely-used approach to estimating the self-diffusion coefficient, $D^*$, from molecular dynamics simulation is to fit a linear model to the observed mean-square displacement, $\mathbf{x}(t)$ [@allen2017], where the slope of this &ldquo;best fit&rdquo; linear relationship gives a point-estimate for $D^*$ via the corresponding Einstein relation.
 The simplest approach to fitting a linear model to observed MSD data is ordinary least squares (OLS).
 OLS, however, is statistically inefficient and gives a large uncertainty in the resulting estimate of $D^*$, while also significantly underestimating this uncertainty [@mccluskey_arxiv_2023].
 `kinisi` implements the alternative approximate Bayesian regression scheme described in @mccluskey_arxiv_2023, which gives a statistically efficient estimate for $D^*$ and an accurate estimate for the associated uncertainty $\sigma^2[\widehat{D}^*]$.
@@ -68,5 +69,5 @@ A list of publications where `kinisi` has been used in the analysis of simulatio
 # Acknowledgements
 
 The authors thank all of the users of `kinisi` for contributing feedback, suggesting new features and filing bug reports. 
-S.W.C., A.G.S. and B.J.M. acknowledge the support of the Faraday Institution (grant numbers FIRG016, FIG017).
+S.W.C., A.G.S., and B.J.M. acknowledge the support of the Faraday Institution (grant numbers FIRG016 and FIRG017).
 B.J.M. acknowledges support from the Royal Society (UF130329 and URF\textbackslash R\textbackslash 191006). 
