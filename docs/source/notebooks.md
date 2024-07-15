@@ -13,4 +13,5 @@ vasp_dj
 ase_COG
 arrhenius_t
 pymatgen
+mdanalysis
 ```
