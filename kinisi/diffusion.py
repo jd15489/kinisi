@@ -235,19 +235,32 @@ class Diffusion:
         """
         return self._sigma
 
+    #def compute_covariance_matrix(self) -> sc.Variable:
+    #    """
+    #    Compute the covariance matrix for the diffusion coefficient calculation.
+    #
+    #    :returns: A :py:mod:`scipp` object containing the covariance matrix.
+    #    """
+    #    cov = np.zeros((self.da.data.variances.size, self.da.data.variances.size))
+    #    for i in range(0, self.da.data.variances.size):
+    #        for j in range(i, self.da.data.variances.size):
+    #            ratio = self.da.coords['n_samples'].values[i] / self.da.coords['n_samples'].values[j]
+    #            value = ratio * self.da.data.variances[i]
+    #            cov[i, j] = value
+    #            cov[j, i] = np.copy(cov[i, j])
+    #    return sc.array(
+    #        dims=['time_interval1', 'time_interval2'],
+    #        values=cov_nearest(minimum_eigenvalue_method(cov[self.diff_regime :, self.diff_regime :], self._cond_max)),
+    #        unit=self.da.unit**2,
+    #    )
+    
     def compute_covariance_matrix(self) -> sc.Variable:
-        """
-        Compute the covariance matrix for the diffusion coefficient calculation.
-
-        :returns: A :py:mod:`scipp` object containing the covariance matrix.
-        """
-        cov = np.zeros((self.da.data.variances.size, self.da.data.variances.size))
-        for i in range(0, self.da.data.variances.size):
-            for j in range(i, self.da.data.variances.size):
-                ratio = self.da.coords['n_samples'].values[i] / self.da.coords['n_samples'].values[j]
-                value = ratio * self.da.data.variances[i]
-                cov[i, j] = value
-                cov[j, i] = np.copy(cov[i, j])
+        import kinisi_O3
+        size = self.da.data.variances.size
+        n_samples = self.da.coords['n_samples'].values
+        data_variances = self.da.data.variances
+        cov = kinisi_O3.compute_convariance_matrix(size, n_samples, data_variances)
+        cov=np.array(cov)
         return sc.array(
             dims=['time_interval1', 'time_interval2'],
             values=cov_nearest(minimum_eigenvalue_method(cov[self.diff_regime :, self.diff_regime :], self._cond_max)),
