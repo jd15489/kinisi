@@ -13,3 +13,8 @@ abstracts
 docs/source/example.hdf
 docs/source/_static/.*.lock
 docs/source/tmp.ipynb
+kinisi/Parser_Refactor.txt
+kinisi/old_ase.py
+kinisi/old_mdanalysis.py
+kinisi/old_parser.py
+kinisi/old_pymatgen.py

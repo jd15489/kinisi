@@ -15,6 +15,7 @@ import scipp as sc
 from scipp.typing import VariableLikeType
 
 from kinisi import __version__
+from kinisi.particle_group import ParticleGroup
 
 from .due import Doi, due
 
@@ -71,14 +72,12 @@ class Parser:
 
     def __init__(
         self,
-        coords: VariableLikeType,
+        diffusion_PG: ParticleGroup,
+        drift_PG: ParticleGroup,
         latt: VariableLikeType,
         time_step: VariableLikeType,
         step_skip: VariableLikeType,
         dt: VariableLikeType = None,
-        specie_indices: VariableLikeType = None,
-        drift_indices: VariableLikeType = None,
-        masses: VariableLikeType = None,
         dimension: str = 'xyz',
     ):
         self.time_step = time_step

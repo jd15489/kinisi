@@ -13,7 +13,7 @@ from scipp.typing import VariableLikeType
 from tqdm import tqdm
 
 from kinisi.parser import Parser
-
+from kinisi.particle_group import ParticleGroup
 
 class MDAnalysisParser(Parser):
     """
@@ -43,7 +43,8 @@ class MDAnalysisParser(Parser):
     def __init__(
         self,
         universe: 'MDAnalysis.core.universe.Universe',
-        specie: str | list | VariableLikeType,
+        diffusion_PG: ParticleGroup,
+        specie: str | list | VariableLikeType = None,
         time_step: VariableLikeType,
         step_skip: VariableLikeType,
         dt: VariableLikeType = None,
@@ -59,9 +60,9 @@ class MDAnalysisParser(Parser):
         specie_indices, drift_indices = super().get_specie_and_drift_indices(
             specie, specie_indices, drift_indices, structure
         )
-
+        
         super().__init__(
-            coords=coords,
+            diffusion_PG=diffusion_PG
             latt=latt,
             time_step=time_step,
             step_skip=step_skip,
